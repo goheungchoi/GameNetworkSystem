@@ -1,0 +1,30 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "vs2022-x64-debug",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "build/vs2022-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "ninja-release",
+      "generator": "Ninja",
+      "binaryDir": "build/ninja-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "vs-build", "configurePreset": "vs2022-x64-debug" },
+    { "name": "ninja-build", "configurePreset": "ninja-release", "jobs": 0 }
+  ],
+  "testPresets": [
+    { "name": "vs-test", "configurePreset": "vs2022-x64-debug", "output": { "outputOnFailure": true } }
+  ]
+}
