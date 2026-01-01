@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-// TODO: Endianess.
-
 namespace GameNet {
 
 class OutputMemoryBitStream;
@@ -163,28 +161,28 @@ class OutputMemoryBitStream {
   template <typename T,
             std::enable_if_t<std::is_arithmetic_v<T> || std::is_enum_v<T>,
                              bool> = true>
-  void NetSerialize(T data) {
+  void BitSerialize(T data) {
     Write(data);
   }
 
   template <typename T,
             std::enable_if_t<!(std::is_arithmetic_v<T> || std::is_enum_v<T>),
                              bool> = true>
-  void NetSerialize(const T& data) {
+  void BitSerialize(const T& data) {
     Write(data);
   }
 
   template <typename T,
             std::enable_if_t<std::is_arithmetic_v<T> || std::is_enum_v<T>,
                              bool> = true>
-  void NetSerialize(T data, uint32_t bitCount) {
+  void BitSerialize(T data, uint32_t bitCount) {
     Write(data, bitCount);
   }
 
   template <typename T,
             std::enable_if_t<!(std::is_arithmetic_v<T> || std::is_enum_v<T>),
                              bool> = true>
-  void NetSerialize(const T& data, uint32_t bitCount) {
+  void BitSerialize(const T& data, uint32_t bitCount) {
     Write(data, bitCount);
   }
 
@@ -268,12 +266,12 @@ class InputMemoryBitStream {
   }
 
   template <typename T>
-  void NetSerialize(T& outData) {
+  void BitSerialize(T& outData) {
     Read(outData);
   }
 
   template <typename T>
-  void NetSerialize(T& outData, uint32_t bitCount) {
+  void BitSerialize(T& outData, uint32_t bitCount) {
     Read(outData, bitCount);
   }
 
