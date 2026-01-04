@@ -1,7 +1,7 @@
-#include "udp_socket.h"
+#include "socket/udp_socket.h"
 
-#include "socket_address.h"
-#include "socket_util.h"
+#include "socket/socket_address.h"
+#include "socket/socket_util.h"
 
 GameNet::UDPSocket::~UDPSocket() {
 #if _WIN32

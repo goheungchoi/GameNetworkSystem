@@ -1,4 +1,4 @@
-#include "socket_address_factory.h"
+#include "socket/socket_address_factory.h"
 
 GameNet::SocketAddressOpt GameNet::SocketAddressFactory::CreateIPv4FromString(
     const std::string& str) {

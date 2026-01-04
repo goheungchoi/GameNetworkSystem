@@ -41,13 +41,16 @@ endif()
 # ----------------------------
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(GNUInstallDirs)
-include(AddEngineModule)  # defines engine_add_module(...)
+include(AddEngineExecutable)     # defines add_engine_app(...)
+include(AddEngineModule)  # defines add_engine_module(...)
 include(FetchDeps)        # FetchContent for asio::asio, glm::glm, glfw::glfw
 
 # ----------------------------
 # Targets
 # ----------------------------
 add_subdirectory(src)
+add_subdirectory(apps)
+add_subdirectory(tools)
 
 # ----------------------------
 # Tests

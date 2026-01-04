@@ -1,7 +1,7 @@
-#include "tcp_socket.h"
+#include "socket/tcp_socket.h"
 
-#include "socket_address.h"
-#include "socket_util.h"
+#include "socket/socket_address.h"
+#include "socket/socket_util.h"
 
 GameNet::TCPSocket::~TCPSocket() {
 #if _WIN32

@@ -1,4 +1,4 @@
-#include "socket_address.h"
+#include "socket/socket_address.h"
 
 std::string GameNet::SocketAddress::ToString() const {
   const sockaddr_in* s = GetAsSockAddrIn();

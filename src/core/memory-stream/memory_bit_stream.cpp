@@ -1,4 +1,4 @@
-#include "memory_bit_stream.h"
+#include "memory-stream/memory_bit_stream.h"
 
 #include <cassert>  // TODO: Replace it with custom assert.
 

@@ -2,33 +2,33 @@
 
 #include <algorithm>
 
-ctnr::circular_buffer::circular_buffer(size_t blockSize, bool growable)
+GameNet::CircularBuffer::CircularBuffer(size_t blockSize, bool growable)
     : kBlockSize(blockSize), kGrowable(growable) {
-  init_table();
+  InitTable();
 }
 
-ctnr::circular_buffer::~circular_buffer() { cleanup_table(); }
+GameNet::CircularBuffer::~CircularBuffer() { CleanupTable(); }
 
-ctnr::circular_buffer::circular_buffer(const ctnr::circular_buffer& other)
+GameNet::CircularBuffer::CircularBuffer(const GameNet::CircularBuffer& other)
     : kBlockSize(other.kBlockSize), kGrowable(other.kGrowable) {
   if (this != &other) {
-    copy(other);
+    Copy(other);
   }
 }
 
-ctnr::circular_buffer& ctnr::circular_buffer::operator=(
-    const ctnr::circular_buffer& other) {
+GameNet::CircularBuffer& GameNet::CircularBuffer::operator=(
+    const GameNet::CircularBuffer& other) {
   if (this != &other) {
     // Copy the other.
     const_cast<size_t&>(kBlockSize) = other.kBlockSize;
     const_cast<bool&>(kGrowable) = other.kGrowable;
-    copy(other);
+    Copy(other);
   }
 
   return *this;
 }
 
-ctnr::circular_buffer::circular_buffer(ctnr::circular_buffer&& other) noexcept
+GameNet::CircularBuffer::CircularBuffer(GameNet::CircularBuffer&& other) noexcept
     : kBlockSize(other.kBlockSize), kGrowable(other.kGrowable) {
   if (this != &other) {
     // Copy variables.
@@ -50,11 +50,11 @@ ctnr::circular_buffer::circular_buffer(ctnr::circular_buffer&& other) noexcept
   }
 }
 
-ctnr::circular_buffer& ctnr::circular_buffer::operator=(
-    ctnr::circular_buffer&& other) noexcept {
+GameNet::CircularBuffer& GameNet::CircularBuffer::operator=(
+    GameNet::CircularBuffer&& other) noexcept {
   if (this != &other) {
     // Clean up current table.
-    cleanup_table();
+    CleanupTable();
 
     // Copy variables.
     const_cast<size_t&>(kBlockSize) = other.kBlockSize;
@@ -78,7 +78,7 @@ ctnr::circular_buffer& ctnr::circular_buffer::operator=(
   return *this;
 }
 
-bool ctnr::circular_buffer::write(const void* p, size_t size) {
+bool GameNet::CircularBuffer::Write(const void* p, size_t size) {
   if (size == 0) return false;
 
   const uint8_t* src = reinterpret_cast<const uint8_t*>(p);
@@ -88,7 +88,7 @@ bool ctnr::circular_buffer::write(const void* p, size_t size) {
     if (!kGrowable) return false;
 
     while (size > _totalCapacity - _totalSize) {
-      increase_table();
+      IncreaseTable();
     }
   }
 
@@ -101,7 +101,7 @@ bool ctnr::circular_buffer::write(const void* p, size_t size) {
     memcpy(&_table[_hd.n][_hd.m], src + bytes_copied, bytes_to_copy);
 
     bytes_copied += bytes_to_copy;
-    _hd = advance_buf_pointer(_hd, bytes_copied);
+    _hd = AdvanceBufferPointer(_hd, bytes_copied);
   }
 
   _totalSize += size;
@@ -109,7 +109,7 @@ bool ctnr::circular_buffer::write(const void* p, size_t size) {
   return true;
 }
 
-bool ctnr::circular_buffer::read(void* p, size_t size) {
+bool GameNet::CircularBuffer::Read(void* p, size_t size) {
   if (size == 0) return false;
 
   uint8_t* dst = reinterpret_cast<uint8_t*>(p);
@@ -128,7 +128,7 @@ bool ctnr::circular_buffer::read(void* p, size_t size) {
     memcpy(dst + bytes_copied, &_table[_tl.n][_tl.m], bytes_to_copy);
 
     bytes_copied += bytes_to_copy;
-    _tl = advance_buf_pointer(_tl, bytes_copied);
+    _tl = AdvanceBufferPointer(_tl, bytes_copied);
   }
 
   _totalSize -= size;
@@ -136,14 +136,14 @@ bool ctnr::circular_buffer::read(void* p, size_t size) {
   // Decrease the table by 2 if usage rate is under 1/4.
   double usage_rate = (double)_totalSize / _totalCapacity;
   while (_tableCapacity > 1 && usage_rate < 0.25) {
-    decrease_table();
+    DecreaseTable();
     usage_rate = (double)_totalSize / _totalCapacity;
   }
 
   return true;
 }
 
-bool ctnr::circular_buffer::peek(void* p, size_t size) const {
+bool GameNet::CircularBuffer::Peek(void* p, size_t size) const {
   if (size == 0) return false;
 
   uint8_t* dst = reinterpret_cast<uint8_t*>(p);
@@ -162,19 +162,19 @@ bool ctnr::circular_buffer::peek(void* p, size_t size) const {
     memcpy(dst + bytes_copied, &_table[_tl.n][_tl.m], bytes_to_copy);
 
     bytes_copied += bytes_to_copy;
-    tmp_tl = advance_buf_pointer(tmp_tl, bytes_copied);
+    tmp_tl = AdvanceBufferPointer(tmp_tl, bytes_copied);
   }
 
   return true;
 }
 
-bool ctnr::circular_buffer::empty() const { return _totalSize == 0; }
+bool GameNet::CircularBuffer::Empty() const { return _totalSize == 0; }
 
-size_t ctnr::circular_buffer::size() const { return _totalSize; }
+size_t GameNet::CircularBuffer::Size() const { return _totalSize; }
 
-size_t ctnr::circular_buffer::capacity() const { return _totalCapacity; }
+size_t GameNet::CircularBuffer::Capacity() const { return _totalCapacity; }
 
-void ctnr::circular_buffer::init_table() {
+void GameNet::CircularBuffer::InitTable() {
   _totalSize = 0;
   _totalCapacity = kBlockSize;
   _hd = {};
@@ -184,7 +184,7 @@ void ctnr::circular_buffer::init_table() {
   _table[0] = (uint8_t*)malloc(kBlockSize);
 }
 
-void ctnr::circular_buffer::cleanup_table() {
+void GameNet::CircularBuffer::CleanupTable() {
   for (size_t i = 0; i < _tableCapacity; ++i) {
     free(_table[i]);
   }
@@ -199,7 +199,7 @@ void ctnr::circular_buffer::cleanup_table() {
   _table = nullptr;
 }
 
-void ctnr::circular_buffer::copy(const ctnr::circular_buffer& other) {
+void GameNet::CircularBuffer::Copy(const GameNet::CircularBuffer& other) {
   size_t prevTableCapacity = _tableCapacity;
 
   // Copy variables.
@@ -235,11 +235,11 @@ void ctnr::circular_buffer::copy(const ctnr::circular_buffer& other) {
            bytes_to_copy);
 
     bytes_copied += bytes_to_copy;
-    tmp_tl = advance_buf_pointer(tmp_tl, bytes_copied);
+    tmp_tl = AdvanceBufferPointer(tmp_tl, bytes_copied);
   }
 }
 
-void ctnr::circular_buffer::increase_table() {
+void GameNet::CircularBuffer::IncreaseTable() {
   // 1, 2, 4, 8, ...
   // Create a new memory table.
   size_t new_table_cap = _tableCapacity << 1;
@@ -259,8 +259,8 @@ void ctnr::circular_buffer::increase_table() {
            bytes_to_copy);
 
     bytes_copied += bytes_to_copy;
-    _tl = advance_buf_pointer(_tl, bytes_to_copy);
-    new_hd = advance_buf_pointer(new_hd, bytes_to_copy);
+    _tl = AdvanceBufferPointer(_tl, bytes_to_copy);
+    new_hd = AdvanceBufferPointer(new_hd, bytes_to_copy);
   }
 
   // Free the previous table.
@@ -280,7 +280,7 @@ void ctnr::circular_buffer::increase_table() {
   _table = new_table;
 }
 
-void ctnr::circular_buffer::decrease_table() {
+void GameNet::CircularBuffer::DecreaseTable() {
   if (_tableCapacity == 1) return;
   // If usage rate is 1/4 -> decrease to 1/2.
   size_t new_table_cap = _tableCapacity >> 1;
@@ -300,8 +300,8 @@ void ctnr::circular_buffer::decrease_table() {
            bytes_to_copy);
 
     bytes_copied += bytes_to_copy;
-    _tl = advance_buf_pointer(_tl, bytes_to_copy);
-    new_hd = advance_buf_pointer(new_hd, bytes_to_copy);
+    _tl = AdvanceBufferPointer(_tl, bytes_to_copy);
+    new_hd = AdvanceBufferPointer(new_hd, bytes_to_copy);
   }
 
   // Free the previous table.
@@ -321,7 +321,7 @@ void ctnr::circular_buffer::decrease_table() {
   _table = new_table;
 }
 
-ctnr::circular_buffer::buf_pointer ctnr::circular_buffer::advance_buf_pointer(
+GameNet::CircularBuffer::buf_pointer GameNet::CircularBuffer::AdvanceBufferPointer(
     buf_pointer pointer, size_t size) const {
   size_t next_m = pointer.m + size;
 
@@ -335,15 +335,15 @@ ctnr::circular_buffer::buf_pointer ctnr::circular_buffer::advance_buf_pointer(
   return new_pointer;
 }
 
-bool ctnr::circular_buffer::buf_pointer::operator==(const buf_pointer& other) {
+bool GameNet::CircularBuffer::buf_pointer::operator==(const buf_pointer& other) {
   return n == other.n && m == other.m;
 }
 
-bool ctnr::circular_buffer::buf_pointer::operator!=(const buf_pointer& other) {
+bool GameNet::CircularBuffer::buf_pointer::operator!=(const buf_pointer& other) {
   return !(*this == other);
 }
 
-bool ctnr::circular_buffer::buf_pointer::operator<(const buf_pointer& other) {
+bool GameNet::CircularBuffer::buf_pointer::operator<(const buf_pointer& other) {
   if (n == other.n) {
     return m < other.m;
   } else {
