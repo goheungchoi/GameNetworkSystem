@@ -10,10 +10,7 @@ int GameNet::GameSession::Frame() {
   double frameDt = frame.Tick();
 
   stepper.AddTime(frameDt);
-
-  // Receive network once per frame
-  transport->PumpRecv(*client, server.get());
-
+  
   while (stepper.Step()) {
     // Sample and buffer inputs with ++tickId.
     // And send batched inputs through the transport.
